@@ -196,11 +196,54 @@ class BattleshipGame
         } else {
             $placingVal = self::POINT_HIT;
             $message = '** Hit **';
+            if ($this->checkShipSunk($row, $col)) {
+                $message = '** Ship Sunk **';
+            }
         }
 
         $this->board->placeValue(new BasicPlacingParams($row, $col), $placingVal);
 
         return $message;
+    }
+
+    /**
+     * Check if particular ship was sunk
+     *  - assumes that min. length is 4
+     *    and max. is 5
+     *
+     * @param int $rowStart Starting row for check (hit point)
+     * @param int $colStart Starting column for check (hit point)
+     * @return bool true if whole ship is sunk
+     */
+    private function checkShipSunk($rowStart, $colStart)
+    {
+        // Setup counters (we know we have 1 hit already)
+        $horizontalHits = 1; $verticalHits = 1;
+        // Check all 4 directions
+        for ($dir = 0; $dir < 4; $dir++) {
+            // Check for 4 points in direction
+            for ($i = 1; $i < 5; $i++) {
+                $direction = new Direction($dir);
+                list($col, $row) = $this->board->calculatePosition($direction, $rowStart, $colStart, $i);
+
+                // Check if we are not out of board
+                if (!isset($this->getBoardLayout()[$row][$col])) {
+                    break;
+                }
+
+                // Check if board point is hit point
+                $val = $this->getBoardLayout()[$row][$col];
+                if ($val === self::POINT_HIT) {
+                    if ($direction->isHorizontal()) {
+                        $horizontalHits++;
+                    } else {
+                        $verticalHits++;
+                    }
+                }
+            }
+        }
+
+        return (in_array($horizontalHits, [4, 5]) || in_array($verticalHits, [4, 5]));
     }
 
     /**

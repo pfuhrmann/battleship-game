@@ -81,15 +81,15 @@ class Board
     public function placeValueInDirection(DirectedPlacingParams $params, $placeVal)
     {
         $direction = $params->getDirection();
-        $row = $params->getRow();
-        $col = $params->getColumn();
+        $rowStart = $params->getRow();
+        $colStart = $params->getColumn();
         $layoutCopy = $this->layout; // Copy of layout to allow for reverts
         $process = false; // Holding status of placement algorithm process
 
         // We will have to check array values in specific
         //  direction to know if we can make placement
         for ($i = 0; $i < $params->getLength(); $i++) {
-            list($pCol, $pRow) = $this->calculatePosition($direction, $row, $col, $i);
+            list($pCol, $pRow) = $this->calculatePosition($direction, $rowStart, $colStart, $i);
 
             // Check if we are not out of board
             if (!isset($layoutCopy[$pRow][$pCol])) {
@@ -118,8 +118,6 @@ class Board
         return $process;
     }
 
-
-
     /**
      * Calculate point position on the board based
      *  on movement and current iteration count
@@ -131,23 +129,23 @@ class Board
      *
      * @return array Calculated row and column
      */
-    private function calculatePosition(Direction $direction, $row, $col, $i)
+    public function calculatePosition(Direction $direction, $row, $col, $i)
     {
         // Vertical placement
         if ($direction->isVertical()) {
-            if ($direction->isWest()) {
-                $col = $col - $i; // Loop left
+            if ($direction->isNorth()) {
+                $row = $row - $i; // Loop up
             } else {
-                $col = $col + $i; // Loop right
+                $row = $row + $i; // Loop down
             }
         }
 
         // Horizontal placement
         if ($direction->isHorizontal()) {
-            if ($direction->isNorth()) {
-                $row = $row - $i; // Loop up
+            if ($direction->isWest()) {
+                $col = $col - $i; // Loop left
             } else {
-                $row = $row + $i; // Loop down
+                $col = $col + $i; // Loop right
             }
         }
 

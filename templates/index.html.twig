@@ -1,0 +1,30 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+<pre>
+{{ message }}
+
+<table>
+{% for rows, cols in layout %}
+    <tr>
+        {% for col in cols %}
+            <td>{{ col }}</td>
+        {% endfor %}
+    </tr>
+{% endfor %}
+</table>
+{{ messageWin }}
+</pre>
+
+<p>
+    <form method="post">
+        Enter coordinates (row, col), e.g. A5 <input name="pos" type="text" size="2" maxlength="4" /> <input type="submit" value="Submit">
+    </form>
+</p>
+
+<p>
+    <form method="post" action="/reset">
+        <input type="submit" value="Reset Game">
+    </form>
+</p>
+{% endblock %}

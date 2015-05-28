@@ -1,0 +1,19 @@
+{
+    "name": "worldstores/test",
+    "license": "private",
+    "authors": [
+        {
+            "name": "Patrik Fuhrmann",
+            "email": "fuhrmann.patrik@gmail.com"
+        }
+    ],
+    "require": {
+      "phroute/phroute": "1.*",
+      "twig/twig": "~1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "WorldStores\\Test\\": "app/"
+        }
+    }
+}

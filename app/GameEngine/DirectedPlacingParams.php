@@ -10,15 +10,17 @@ class DirectedPlacingParams extends BasicPlacingParams
     /**
      * @param int       $row       Row where to place
      * @param int       $column    Column where to place
+     * @param mixed     $val       Value to place
      * @param int       $length    Length of placing params
      * @param Direction $direction Direction of placement
      */
-    public function __construct($row, $column, $length, Direction $direction)
+    public function __construct($row, $column, $val, $length, Direction $direction)
     {
-        $this->length = $length;
-        $this->direction = $direction;
         $this->row = $row;
         $this->column = $column;
+        $this->val = $val;
+        $this->length = $length;
+        $this->direction = $direction;
     }
 
     /**

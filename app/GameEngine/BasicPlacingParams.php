@@ -6,15 +6,18 @@ class BasicPlacingParams
 {
     protected $row;
     protected $column;
+    protected $val;
 
     /**
-     * @param int       $row       Row where to place
-     * @param int       $column    Column where to place
+     * @param int   $row     Row where to place
+     * @param int   $column  Column where to place
+     * @param mixed $val     Value to place
      */
-    public function __construct($row, $column)
+    public function __construct($row, $column, $val)
     {
         $this->row = $row;
         $this->column = $column;
+        $this->val = $val;
     }
 
     /**
@@ -31,5 +34,13 @@ class BasicPlacingParams
     public function getColumn()
     {
         return $this->column;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVal()
+    {
+        return $this->val;
     }
 }

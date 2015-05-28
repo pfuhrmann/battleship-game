@@ -93,8 +93,8 @@ class BattleshipGame
                 $length = $ship->getLength();
                 $pars = $this->generateRandomParams();
                 $direction = new Direction($pars['direction']);
-                $params = new DirectedPlacingParams($pars['row'], $pars['col'], $length, $direction);
-                $placed = $this->board->placeValueInDirection($params, self::POINT_SHIP);
+                $params = new DirectedPlacingParams($pars['row'], $pars['col'], self::POINT_SHIP, $length, $direction);
+                $placed = $this->board->placeValueInDirection($params);
             } while (!$placed);
         }
     }
@@ -184,12 +184,13 @@ class BattleshipGame
         }
 
         list($row, $col) = $this->parseUserLocation($location);
-        $layout = $this->getBoardLayout();
-        if (!isset($layout[$row][$col])) {
+
+        $board = $this->board;
+        if (!$board->fetchPointType($row, $col)) {
             return '** Input Error **';
         }
 
-        $val = $layout[$row][$col];
+        $val = $board->fetchPointType($row, $col);
         if ($val !== self::POINT_SHIP && $val !== self::POINT_HIT) {
             $placingVal = self::POINT_MISS;
             $message = '** Miss **';
@@ -201,7 +202,7 @@ class BattleshipGame
             }
         }
 
-        $this->board->placeValue(new BasicPlacingParams($row, $col), $placingVal);
+        $this->board->placeValue(new BasicPlacingParams($row, $col, $placingVal));
 
         return $message;
     }
@@ -217,6 +218,7 @@ class BattleshipGame
      */
     private function checkShipSunk($rowStart, $colStart)
     {
+        $board = $this->board;
         // Setup counters (we know we have 1 hit already)
         $horizontalHits = 1; $verticalHits = 1;
         // Check all 4 directions
@@ -224,21 +226,24 @@ class BattleshipGame
             // Check for 4 points in direction
             for ($i = 1; $i < 5; $i++) {
                 $direction = new Direction($dir);
-                list($col, $row) = $this->board->calculatePosition($direction, $rowStart, $colStart, $i);
+                list($col, $row) = $board->calculatePosition($direction, $rowStart, $colStart, $i);
 
                 // Check if we are not out of board
-                if (!isset($this->getBoardLayout()[$row][$col])) {
+                if (!$board->fetchPointType($row, $col)) {
                     break;
                 }
 
                 // Check if board point is hit point
-                $val = $this->getBoardLayout()[$row][$col];
+                $val = $board->fetchPointType($row, $col);
                 if ($val === self::POINT_HIT) {
                     if ($direction->isHorizontal()) {
                         $horizontalHits++;
                     } else {
                         $verticalHits++;
                     }
+                } else {
+                    // No more hits in this direction
+                    break;
                 }
             }
         }

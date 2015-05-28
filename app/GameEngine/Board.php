@@ -33,37 +33,33 @@ class Board
      */
     private function initBoard()
     {
-        $board = [];
+        $layout = [];
 
         for ($row = 0; $row < $this->rows; $row++) {
             for ($column = 0; $column < $this->columns; $column++) {
-                $board[$row][$column] = self::POINT_EMPTY;
+                $layout[$row][$column] = self::POINT_EMPTY;
             }
         }
 
-        $this->layout = $board;
+        $this->layout = $layout;
     }
 
     /**
      * Place value on single square
      *
      * @param BasicPlacingParams $params Simple board placing parameters
-     * @param int                $val    Value to place
      *
      * @return bool True if original value was empty
      */
-    public function placeValue(BasicPlacingParams $params, $val)
+    public function placeValue(BasicPlacingParams $params)
     {
         $row = $params->getRow();
         $col = $params->getColumn();
+        $this->setPoint($params->getVal(), $row, $col);
 
-
-        if ($this->layout[$row][$col] === self::POINT_EMPTY) {
-            $this->layout[$row][$col] = $val;
-
+        if ($this->fetchPointType($row, $col) === self::POINT_EMPTY) {
             return true;
         }
-        $this->layout[$row][$col] = $val;
 
         return false;
     }
@@ -74,30 +70,29 @@ class Board
      *    cannot be outside of boundaries
      *
      * @param DirectedPlacingParams $params   Directed board placing parameters
-     * @param int                    $placeVal Value to place
      *
-     * @return bool True if placement algo passes
+     * @return bool True if placement algorithm passes
      */
-    public function placeValueInDirection(DirectedPlacingParams $params, $placeVal)
+    public function placeValueInDirection(DirectedPlacingParams $params)
     {
         $direction = $params->getDirection();
         $rowStart = $params->getRow();
         $colStart = $params->getColumn();
-        $layoutCopy = $this->layout; // Copy of layout to allow for reverts
+        $layoutCopy = $this->layout; // Copy of layout to allow reverts
         $process = false; // Holding status of placement algorithm process
 
         // We will have to check array values in specific
         //  direction to know if we can make placement
         for ($i = 0; $i < $params->getLength(); $i++) {
-            list($pCol, $pRow) = $this->calculatePosition($direction, $rowStart, $colStart, $i);
+            list($col, $row) = $this->calculatePosition($direction, $rowStart, $colStart, $i);
 
             // Check if we are not out of board
-            if (!isset($layoutCopy[$pRow][$pCol])) {
+            if (!$this->fetchPointType($row, $col)) {
                 $process = false;
                 break;
             }
 
-            $val = $layoutCopy[$pRow][$pCol];
+            $val = $this->fetchPointType($row, $col);
             // Check if point is already occupied
             if ($val !== self::POINT_EMPTY) {
                 $process = false;
@@ -105,13 +100,13 @@ class Board
             }
 
             // Make point occupied
-            $layoutCopy[$pRow][$pCol] = $placeVal;
+            $this->setPoint($params->getVal(), $row, $col);
             // Placing process OK
             $process = true;
         }
 
-        // All OK, now we can update board layout
-        if ($process) {
+        // Placement not OK we have to revert layout
+        if (!$process) {
             $this->layout = $layoutCopy;
         }
 
@@ -161,15 +156,13 @@ class Board
     public function loopLayout($callback) {
         for ($row = 0; $row < $this->getRows(); $row++) {
             for ($col = 0; $col < $this->getColumns(); $col++) {
-                $val = $this->layout[$row][$col];
+                $val = $this->fetchPointType($row, $col);
                 $callback($val, $row, $col);
             }
         }
     }
 
     /**
-     * Get number of rows on the gaming board
-     *
      * @return int
      */
     public function getRows()
@@ -178,8 +171,6 @@ class Board
     }
 
     /**
-     * Get number of columns on the gaming board
-     *
      * @return int
      */
     public function getColumns()
@@ -198,10 +189,56 @@ class Board
     }
 
     /**
-     * @param mixed $layout
+     * @param array $layout
      */
     public function setLayout($layout)
     {
         $this->layout = $layout;
+    }
+
+    /**
+     * Fetch specific point from the board layout
+     *  based on row, col location
+     *
+     * @param int $row    Fetching point row
+     * @param int $col    Fetching point column
+     * @return mixed/bool Fetched value otherwise false if point does not exist
+     */
+    public function fetchPointType($row, $col)
+    {
+        if (isset($this->layout[$row][$col])) {
+            return $this->layout[$row][$col];
+        }
+
+        return false;
+    }
+
+    /**
+     * Fetch value from the specific point on
+     * the board layout based on row, col location
+     *
+     * @param int $row    Fetching point row
+     * @param int $col    Fetching point column
+     * @return mixed/bool Fetched value otherwise false if point does not exist
+     */
+    public function fetchPointVal($row, $col)
+    {
+        if (isset($this->layout[$row][$col])) {
+            return $this->layout[$row][$col]['val'];
+        }
+
+        return false;
+    }
+
+    /**
+     * Set the point on the board on the
+     * specific location
+     *
+     * @param mixed $val Value to be set
+     * @param int   $row Setting point row
+     * @param int   $col Setting point column
+     */
+    public function setPoint($val, $row, $col) {
+        $this->layout[$row][$col] = $val;
     }
 }

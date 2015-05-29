@@ -25,8 +25,8 @@ class Board
 
     /**
      * Initialize empty gaming board
-     *  - Empty board is 2D array
-     *    with all values set to -1 (int)
+     *  - Empty board is 2D array with
+     *     all point type set to -1 (int)
      *  Example: |-1|-1|-1|
      *           |-1|-1|-1|
      *           |-1|-1|-1|
@@ -37,7 +37,7 @@ class Board
 
         for ($row = 0; $row < $this->rows; $row++) {
             for ($column = 0; $column < $this->columns; $column++) {
-                $layout[$row][$column] = self::POINT_EMPTY;
+                $layout[$row][$column]['type'] = self::POINT_EMPTY;
             }
         }
 
@@ -55,7 +55,7 @@ class Board
     {
         $row = $params->getRow();
         $col = $params->getColumn();
-        $this->setPoint($params->getVal(), $row, $col);
+        $this->setPointType($params->getType(), $row, $col);
 
         if ($this->fetchPointType($row, $col) === self::POINT_EMPTY) {
             return true;
@@ -100,7 +100,11 @@ class Board
             }
 
             // Make point occupied
-            $this->setPoint($params->getVal(), $row, $col);
+            $this->setPointType($params->getType(), $row, $col);
+            if ($params->getExtra() !== null) {
+                $this->setPointExtra($params->getExtra(), $row, $col);
+            }
+
             // Placing process OK
             $process = true;
         }
@@ -197,8 +201,8 @@ class Board
     }
 
     /**
-     * Fetch specific point from the board layout
-     *  based on row, col location
+     * Fetch specific point type from the
+     *  board layout based on row, col location
      *
      * @param int $row    Fetching point row
      * @param int $col    Fetching point column
@@ -207,38 +211,50 @@ class Board
     public function fetchPointType($row, $col)
     {
         if (isset($this->layout[$row][$col])) {
-            return $this->layout[$row][$col];
+            return $this->layout[$row][$col]['type'];
         }
 
         return false;
     }
 
     /**
-     * Fetch value from the specific point on
-     * the board layout based on row, col location
+     * Fetch specific point extra data from the
+     *  board layout based on row, col location
      *
      * @param int $row    Fetching point row
      * @param int $col    Fetching point column
      * @return mixed/bool Fetched value otherwise false if point does not exist
      */
-    public function fetchPointVal($row, $col)
+    public function fetchPointExtra($row, $col)
     {
         if (isset($this->layout[$row][$col])) {
-            return $this->layout[$row][$col]['val'];
+            return $this->layout[$row][$col]['extra'];
         }
 
         return false;
     }
 
     /**
-     * Set the point on the board on the
-     * specific location
+     * Set the type of point on the board
+     *  in the specific location
      *
      * @param mixed $val Value to be set
      * @param int   $row Setting point row
      * @param int   $col Setting point column
      */
-    public function setPoint($val, $row, $col) {
-        $this->layout[$row][$col] = $val;
+    public function setPointType($val, $row, $col) {
+        $this->layout[$row][$col]['type'] = $val;
+    }
+
+    /**
+     * Set the point's extra data on the
+     * board on the specific location
+     *
+     * @param mixed $extra Value to be set
+     * @param int   $row Setting point row
+     * @param int   $col Setting point column
+     */
+    public function setPointExtra($extra, $row, $col) {
+        $this->layout[$row][$col]['extra'] = $extra;
     }
 }

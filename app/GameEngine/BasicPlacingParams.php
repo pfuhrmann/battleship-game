@@ -6,18 +6,21 @@ class BasicPlacingParams
 {
     protected $row;
     protected $column;
-    protected $val;
+    protected $type;
+    protected $extra;
 
     /**
      * @param int   $row     Row where to place
      * @param int   $column  Column where to place
-     * @param mixed $val     Value to place
+     * @param mixed $type    Type of placement
+     * @param mixed $extra   Extra data in placement
      */
-    public function __construct($row, $column, $val)
+    public function __construct($row, $column, $type, $extra = null)
     {
         $this->row = $row;
         $this->column = $column;
-        $this->val = $val;
+        $this->type = $type;
+        $this->extra = $extra;
     }
 
     /**
@@ -39,8 +42,16 @@ class BasicPlacingParams
     /**
      * @return mixed
      */
-    public function getVal()
+    public function getType()
     {
-        return $this->val;
+        return $this->type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExtra()
+    {
+        return $this->extra;
     }
 }

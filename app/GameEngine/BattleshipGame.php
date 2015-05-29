@@ -83,17 +83,20 @@ class BattleshipGame
     {
         // Register new ships on the board
         // so we will know when the game ends
-        $this->shipPlaces += $ship->getLength() * $amount;
+        $sLength = $ship->getLength();
+        $this->shipPlaces += $sLength * $amount;
 
         // Place $amount of ships
         for ($i = 0; $i < $amount; $i++) {
+            // Extra params for ship placement
+            $extra = ['id' => $ship->getType().$i, 'size' => $sLength];
             // Repeat process until we have safely
             // placed the ship on the board
             do {
                 $length = $ship->getLength();
                 $pars = $this->generateRandomParams();
                 $direction = new Direction($pars['direction']);
-                $params = new DirectedPlacingParams($pars['row'], $pars['col'], self::POINT_SHIP, $length, $direction);
+                $params = new DirectedPlacingParams($pars['row'], $pars['col'], self::POINT_SHIP, $length, $direction, $extra);
                 $placed = $this->board->placeValueInDirection($params);
             } while (!$placed);
         }
@@ -219,6 +222,9 @@ class BattleshipGame
     private function checkShipSunk($rowStart, $colStart)
     {
         $board = $this->board;
+        $extra = $board->fetchPointExtra($rowStart, $colStart);
+        $sSize = $extra['size']; // Ship size
+        $sId = $extra['id']; // Ship ID
         // Setup counters (we know we have 1 hit already)
         $horizontalHits = 1; $verticalHits = 1;
         // Check all 4 directions
@@ -236,6 +242,12 @@ class BattleshipGame
                 // Check if board point is hit point
                 $val = $board->fetchPointType($row, $col);
                 if ($val === self::POINT_HIT) {
+                    // Compare ship IDs to prevent counting clashes
+                    $id = $board->fetchPointExtra($row, $col)['id'];
+                    if ($sId !== $id) {
+                        break;
+                    }
+
                     if ($direction->isHorizontal()) {
                         $horizontalHits++;
                     } else {
@@ -248,7 +260,7 @@ class BattleshipGame
             }
         }
 
-        return (in_array($horizontalHits, [4, 5]) || in_array($verticalHits, [4, 5]));
+        return ($horizontalHits === $sSize || $verticalHits === $sSize);
     }
 
     /**

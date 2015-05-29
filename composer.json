@@ -8,7 +8,7 @@
         }
     ],
     "require": {
-      "phroute/phroute": "1.*",
+      "phroute/phroute": "~1.4",
       "twig/twig": "~1.0"
     },
     "autoload": {
